@@ -11,4 +11,18 @@ data_table = struct2table(data);
 
 % Change to "datetime" datatype
 %   Assumes 1st of the month for each time stamp
-data_table.date = datetime(data_table.time_tag,'InputFormat','yyyy-MM');
+T = datetime(data_table.time_tag,'InputFormat','yyyy-MM');
+
+Mdl = arima('Constant',0,'D',1,...
+    'Seasonality',12,...
+    'ARLags',1','SARLags',12', ...
+    'MALags',1','SMALags',12);
+EstMdl = estimate(Mdl,data_table.ssn);
+
+residuals = infer(EstMdl,data_table.ssn);
+prediction = data_table.ssn-residuals;
+figure()
+plot(T,data_table.ssn)
+hold on
+plot(T,prediction)
+legend({'Observed','Predicted'},'Location','best')
