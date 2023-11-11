@@ -34,18 +34,18 @@ test_data = data_table(iPredict,:);
 T_test = datetime(test_data.time_tag,'InputFormat','yyyy-MM');
 
 % best forecast
-best_fore_Mdl = arima('Constant',0,'D',0,...
-                     'Seasonality',132,...
-                     'ARLags',1,'SARLags',132, ...
-                     'MALags',1,'SMALags',132);
+% best_fore_Mdl = arima('Constant',0,'D',0,...
+%                     'Seasonality',132,...
+%                     'ARLags',1,'SARLags',132, ...
+%                     'MALags',1,'SMALags',132);
 
 % % best fit for training data based on AIC
-% best_train_Mdl = arima('Constant',0,'D',0,...
-%                      'Seasonality',128,...
-%                      'ARLags',2,'SARLags',128,...
-%                      'MALags',1,'SMALags',128);
+best_train_Mdl = arima('Constant',0,'D',1,...
+                     'Seasonality',128,...
+                     'ARLags',2,'SARLags',128,...
+                     'MALags',0,'SMALags',128);
 
-EstMdl = estimate(best_fore_Mdl,training_data.ssn);
+EstMdl = estimate(best_train_Mdl,training_data.ssn);
 results = summarize(EstMdl);
 
 
@@ -66,9 +66,9 @@ hold on
 plot(T_test, fores)
 legend({'Recorded Values','Forecasted Values'},'Location','best')
 
-% noaa_pred_data_table.sarima_ssn = forecast(EstMdl,212,data_table.ssn);
-% figure()
-% plot(T_pred, noaa_pred_data_table.predicted_ssn)
-% hold on
-% plot(T_pred, noaa_pred_data_table.sarima_ssn)
-% legend({'NOAA','Sarima'},'Location','best')
+noaa_pred_data_table.sarima_ssn = forecast(EstMdl,212,data_table.ssn);
+figure()
+plot(T_pred, noaa_pred_data_table.predicted_ssn)
+hold on
+plot(T_pred, noaa_pred_data_table.sarima_ssn)
+legend({'NOAA','Sarima'},'Location','best')

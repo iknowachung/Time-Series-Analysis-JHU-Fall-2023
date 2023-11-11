@@ -1,4 +1,3 @@
-
 % json file sourced from:
 %   https://www.swpc.noaa.gov/products/solar-cycle-progression
 
@@ -24,7 +23,7 @@ T = datetime(data_table.time_tag,'InputFormat','yyyy-MM');
 T_pred = datetime(noaa_pred_data_table.time_tag,'InputFormat','yyyy-MM');
 
 % indices for training and test data 1950 <= year(T)) & 
-iTrain = ((1950 <= year(T)) & (year(T) <= 1990));
+iTrain = ((1900 <= year(T)) & (year(T) <= 1990));
 iPredict = (year(T) > 1990);
 
 % Splitting data table into training and test
@@ -33,42 +32,13 @@ T_train = datetime(training_data.time_tag,'InputFormat','yyyy-MM');
 test_data = data_table(iPredict,:);
 T_test = datetime(test_data.time_tag,'InputFormat','yyyy-MM');
 
-% best forecast
-best_fore_Mdl = arima('Constant',0,'D',0,...
-                     'Seasonality',132,...
-                     'ARLags',1,'SARLags',132, ...
-                     'MALags',1,'SMALags',132);
+% Plot ACF
+figure;
+subplot(2,1,1);
+autocorr(training_data.ssn);
+title('Autocorrelation Function (ACF)');
 
-% % best fit for training data based on AIC
-% best_train_Mdl = arima('Constant',0,'D',0,...
-%                      'Seasonality',128,...
-%                      'ARLags',2,'SARLags',128,...
-%                      'MALags',1,'SMALags',128);
-
-EstMdl = estimate(best_fore_Mdl,training_data.ssn);
-results = summarize(EstMdl);
-
-
-% residuals = infer(EstMdl,training_data.ssn);
-% prediction = training_data.ssn-residuals;
-
-% getting the number of periods to forecast from the validation set
-num_periods = length(test_data.ssn);
-
-fores = forecast(EstMdl,num_periods,training_data.ssn);
-
-% MAPE
-rmse(fores, test_data.ssn)
-
-figure()
-plot(T_test, test_data.ssn)
-hold on
-plot(T_test, fores)
-legend({'Recorded Values','Forecasted Values'},'Location','best')
-
-% noaa_pred_data_table.sarima_ssn = forecast(EstMdl,212,data_table.ssn);
-% figure()
-% plot(T_pred, noaa_pred_data_table.predicted_ssn)
-% hold on
-% plot(T_pred, noaa_pred_data_table.sarima_ssn)
-% legend({'NOAA','Sarima'},'Location','best')
+% Plot PACF
+subplot(2,1,2);
+parcorr(training_data.ssn);
+title('Partial Autocorrelation Function (PACF)');
